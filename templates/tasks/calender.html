@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Completion Calendar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to right, #f5e6e8, #d79999);
+            font-family: 'Poppins', sans-serif;
+        }
+        .calendar {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .day-box {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .completed-day {
+            background: gold;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">{{ month_name }} {{ year }}</h1>
+        <div class="calendar">
+            <table class="table table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th>Sun</th>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th>Sat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for week in month_calendar %}
+                    <tr>
+                        {% for day in week %}
+                        {% if day %}
+                    <td class="day-box" 
+                        data-day="{{ day.day }}" 
+                        data-tasks='{{ day.tasks|safe }}'>
+                        {{ day.day }}
+                        {% if day.completed %}⭐{% endif %}
+                    </td>
+                    
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <!-- Task Details Modal -->
+<div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDate"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul id="taskList" class="list-group"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        $(document).ready(function() {
+            $(".day-box").click(function() {
+                let day = $(this).data("day");
+                let taskData = $(this).attr("data-tasks");
+        
+                console.log("Clicked Date:", day);
+                console.log("Raw task data:", taskData);
+        
+                let tasks = [];
+                try {
+                    tasks = JSON.parse(taskData); // Parse correctly formatted JSON
+                    console.log("Parsed tasks:", tasks);
+                } catch (e) {
+                    console.error("JSON Parse Error:", e);
+                }
+        
+                $("#modalDate").text("Tasks for Day " + day);
+                $("#taskList").empty();
+        
+                if (tasks.length > 0) {
+                    tasks.forEach(task => {
+                        let status = task.completed ? "✅ Completed" : "❌ Not Completed";
+                        $("#taskList").append(`<li class="list-group-item">${task.title} - <strong>${status}</strong></li>`);
+                    });
+                } else {
+                    $("#taskList").append('<li class="list-group-item">No tasks for this day.</li>');
+                }
+        
+                $("#taskModal").modal("show");
+            });
+        });
+        
+    </script>
+    
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

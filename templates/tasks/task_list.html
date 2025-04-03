@@ -5,24 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Tasks</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/confetti-js"></script>
+    <style>
+        /* Background Styling */
+        body {
+            background: linear-gradient(to right, #ffe3e3, #722f37);
+            color: #722f37;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+
+        /* Task Grid */
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Two-column layout */
+            gap: 15px;
+        }
+
+        /* Task Cards */
+        .task-card {
+            background: rgba(255, 227, 227, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(5px) brightness(1.1);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Task Text */
+        .task-text {
+            font-size: 18px;
+            color: #722f37;
+            transition: color 0.4s ease-in-out, text-decoration 0.4s ease-in-out;
+        }
+
+        /* Completed Task */
+        .completed {
+            text-decoration: line-through;
+            color: #9b6c74;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: #722f37;
+            border: none;
+            color: #efdfbb;
+        }
+
+        .btn-danger {
+            background-color: #9b6c74;
+            color: #efdfbb;
+        }
+
+        /* Floating Add Task Button */
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease-in-out;
+            background-color: #722f37;
+            color: #efdfbb;
+            text-decoration: none;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="mb-4">My Daily Tasks</h1>
-        <a href="/add/" class="btn btn-primary mb-3">Add New Task</a>
-        <ul class="list-group">
+    <div class="container">
+        <h1 class="text-center mb-4">My Daily Tasks</h1>
+        
+        <!-- View Calendar Button -->
+        <div class="text-center mb-4">
+            <a href="/calendar_view" class="btn btn-secondary">📅 View Calendar</a>
+        </div>
+
+        <!-- Task Grid -->
+        <div class="task-grid">
             {% for task in tasks %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div class="task-card d-flex justify-content-between align-items-center">
                 <div>
-                    <input type="checkbox" onchange="window.location.href='/toggle/{{ task.id }}/'" {% if task.completed %}checked{% endif %}>
-                    <span {% if task.completed %}style="text-decoration: line-through;"{% endif %}>
+                    <input type="checkbox" class="task-checkbox" data-task-id="{{ task.id }}" {% if task.completed %}checked{% endif %}>
+                    <span class="task-text {% if task.completed %}completed{% endif %}">
                         {{ task.title }}
                     </span>
                 </div>
                 <a href="/delete/{{ task.id }}/" class="btn btn-danger btn-sm">Delete</a>
-            </li>
+            </div>
             {% endfor %}
-        </ul>
+        </div>
     </div>
+
+    <!-- Floating Add Button -->
+    <a href="/add/" class="floating-btn" title="Add tasks">+</a>
+   
+
+    <script>
+        // Task Completion Animation with Confetti
+        document.querySelectorAll(".task-checkbox").forEach(checkbox => {
+            checkbox.addEventListener("change", function() {
+                if (this.checked) {
+                    let confetti = new ConfettiGenerator({ target: 'confetti-canvas', max: 200 });
+                    confetti.render();
+                    setTimeout(() => confetti.clear(), 4000);
+                }
+                setTimeout(() => { window.location.href = `/toggle/${this.dataset.taskId}/`; }, 500);
+            });
+        });
+    </script>
+
+    <!-- Confetti Effect -->
+    <canvas id="confetti-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none;"></canvas>
 </body>
 </html>
