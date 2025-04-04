@@ -6,6 +6,9 @@ from django.shortcuts import render, redirect
 from .models import Task
 from django.utils.timezone import localtime, now
 
+def home(request):
+    return render(request,'home.html')
+
 
 def task_list(request):
     today = localtime(now()).date()  # Get today's date
